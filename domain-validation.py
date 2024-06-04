@@ -52,7 +52,7 @@ def main():
         print (f"Number of items to check: {len(domains_to_check)}.")
         
         for domain in domains_to_check:
-            time.sleep(0.8)
+            time.sleep(1)
             status = godaddy(domain)
             results[domain] = status
             print(f"{i}.{domain}: {status}")
