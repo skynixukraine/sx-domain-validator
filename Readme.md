@@ -1,4 +1,4 @@
-# Domain validation script
+# SX Domain Validator
 
 This script leverages the GoDaddy API to perform real-time checks and provides informative results.
 
@@ -24,6 +24,8 @@ Please refer to the comments in `domain-validation.py`.
 1. The script reads the list of names from the `names.txt` file.
 2. It then creates a list of domains to check by adding the prefix (all possible letter combinations) to each name in `names.txt` file. The default lengh of prefix is 2 letters.
 3. The results of the domain availability check are written to the `results.json`
+
+To comply with the API's request limit of 60 requests per minute, the script incorporates a 1-second delay between each request.
 
 ## How to run
 
