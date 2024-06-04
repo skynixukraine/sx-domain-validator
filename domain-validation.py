@@ -48,7 +48,7 @@ def main():
     
     for base_domain in f.readlines():
         # Here you can change the size of prefix, current value is 2
-        domains_to_check = generate_domain_names(base_domain, 2)
+        domains_to_check = generate_domain_names(base_domain.strip(), 2)
         print (f"Number of items to check: {len(domains_to_check)}.")
         
         for domain in domains_to_check:
