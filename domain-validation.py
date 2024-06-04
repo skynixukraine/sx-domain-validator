@@ -5,7 +5,8 @@ import json
 import time
 
 # Example of function. Must be polymorphic and has the same output format
-def godaddy(domain):
+def godaddy(domain, token):
+    
     url = 'https://api.ote-godaddy.com/v1/domains/available'
 
     params = {
@@ -17,21 +18,36 @@ def godaddy(domain):
     }
      
     headers = {
-        'accept': 'application/json',
-        # Replace below with your credentials [key]:[secret]
-        'Authorization': 'sso-key YOUR_API_KEY:YOUR_API_SECRET'
+        "accept": "application/json",
+        "Authorization": f"sso-key {token}"
     }
     
     # Make the GET request
-    response = requests.get(url, headers=headers, params=params)
-    
-    if response.status_code == 200:
-        if response.json()["available"] == True:
-            return "Available"
+    def make_request():
+        response = requests.get(url, headers=headers, params=params)
+        if response.status_code == 200: # OK
+            return response.json()
+        elif response.status_code == 429: # Too many requests
+            print("Requests number exceeded. Pausing and retrying request...")
+            time.sleep(1)
+            return make_request()  # Retry after waiting
         else:
-            return "Exists"
+            return response.status_code
+    try:
+        response_json = make_request()
+    except:
+        print("Temporary failure in establishing a new connection. Pausing and retrying request...")
+        time.sleep(2)
+        response_json = make_request()
+
+    if isinstance(response_json, dict):
+        if "available" in response_json:
+            if response_json["available"]:
+                return "Available"
+            else:
+                return "Exists"
     else:
-        return f"Error: {response.status_code}"
+        return (f"Error: {response_json}")
 
 # Generates combination of domain names
 def generate_domain_names(base_domain, repeat):
@@ -42,26 +58,30 @@ def generate_domain_names(base_domain, repeat):
 
 def main():
 
-    f = open("names.txt", "r")
     results = {}
     i = 1
-    
+
+    key = open(".env", "r")
+    token = key.readline().strip()
+
+    f = open("names.txt", "r")
+
     for base_domain in f.readlines():
         # Here you can change the size of prefix, current value is 2
         domains_to_check = generate_domain_names(base_domain.strip(), 2)
         print (f"Number of items to check: {len(domains_to_check)}.")
         
         for domain in domains_to_check:
-            time.sleep(1)
-            status = godaddy(domain)
+            #time.sleep(1)
+            status = godaddy(domain, token)
             results[domain] = status
             print(f"{i}.{domain}: {status}")
             i+=1
 
-    with open('results.json', 'w') as f:
+    with open("results.json", "w") as f:
         json.dump(results, f, indent=4)
 
-    print ("The  results are saved to results.json")
+    print ("The results are saved to results.json")
 
 if __name__ == "__main__":
     main()
