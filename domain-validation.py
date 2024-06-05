@@ -63,7 +63,15 @@ def main():
 
     key = open(".env", "r")
     token = key.readline().strip()
+    if not token:
+        print ("WARNING! Please add credentials to .env file!")
+        exit()
 
+    f = open("names.txt", "r")
+    if not f.readline().strip():
+        print ("WARNING! Add at least one name to names.txt file!")
+        exit()
+    
     f = open("names.txt", "r")
 
     for base_domain in f.readlines():
